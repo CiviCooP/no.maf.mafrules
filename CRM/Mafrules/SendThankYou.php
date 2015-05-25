@@ -118,7 +118,7 @@ class CRM_Mafrules_SendThankYou {
     } else {
       $activityStatusId = 2; //completed in core
     }
-    $subject = 'First Contribution Thank You Postcard (amount '.$this->contributionData['total_amount'].' on '.date('Y-m-d', strtotime($this->contributionData['receive_date']));
+    $subject = 'First Contribution Thank You Postcard (amount '.CRM_Utils_Money::format($this->contributionData['total_amount']).' on '.date('Y-m-d', strtotime($this->contributionData['receive_date'])).')';
     $activityParams = array(
       'activity_type_id' => $activityTypeId,
       'status_id' => $activityStatusId,
@@ -144,7 +144,7 @@ class CRM_Mafrules_SendThankYou {
     } else {
       $activityStatusId = 1; //scheduled in core
     }
-    $subject = 'Second Contribution Thank You (amount '.$this->contributionData['total_amount'].' on '.date('Y-m-d', strtotime($this->contributionData['receive_date']));
+    $subject = 'Second Contribution Thank You (amount '.CRM_Utils_Money::format($this->contributionData['total_amount']).' on '.date('Y-m-d', strtotime($this->contributionData['receive_date'])).')';
     $activityParams = array(
       'activity_type_id' => $activityTypeId,
       'status_id' => $activityStatusId,
