@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/civirule/form/action/sendthankyou</path>
+    <page_callback>CRM_Mafrules_CivirulesActions_Form_SendThankYou</page_callback>
+    <title>SendThankYou</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>
