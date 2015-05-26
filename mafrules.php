@@ -185,7 +185,7 @@ function _mafrules_create_civirulescheck($customGroupName) {
   } catch (CiviCRM_API3_Exception $ex) {
     $createCustomFieldParams = array(
       'name' => $customFieldName,
-      'custom_Group_id' => $customGroup['id'],
+      'custom_group_id' => $customGroup['id'],
       'label' => 'Send Thank You action processed',
       'default_value' => 0,
       'data_type' => 'Boolean',
