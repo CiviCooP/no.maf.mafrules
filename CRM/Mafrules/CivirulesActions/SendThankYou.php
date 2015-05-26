@@ -53,7 +53,7 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
    */
   public function processAction(CRM_Civirules_EventData_EventData $eventData) {
     $contribution = $eventData->getEntityData('Contribution');
-    $this->setSendThankYouProcessed($contribution['id']);
+    $this->setSendThankYouProcessed($contribution['contribution_id']);
     $processContribution = TRUE;
     /*
      * test to check if contribution should be ignored
@@ -148,7 +148,7 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
    */
   protected function setSendThankYouProcessed($contributionId) {
     if (!empty($contributionId)) {
-      $query = 'UPDATE civicrm_value_civirules_check SET send_thank_you_processed = %1 WHERE entity_id = %2';
+      $query = 'REPLACE INTO civicrm_value_civirules_check SET send_thank_you_processed = %1, entity_id = %2';
       $params = array(
         1 => array(1, 'Integer'),
         2 => array($contributionId, 'Integer'));

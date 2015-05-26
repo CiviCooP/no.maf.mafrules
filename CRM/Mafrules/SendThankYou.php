@@ -55,6 +55,7 @@ class CRM_Mafrules_SendThankYou {
             $this->sendEmail();
             break;
         }
+        break;
     }
   }
   /**
@@ -78,7 +79,7 @@ class CRM_Mafrules_SendThankYou {
    */
   protected function sendEmail() {
     $params = array(
-      'email' => $this->actionParams['email_from_email'],
+      'from_email' => $this->actionParams['email_from_email'],
       'template_id' => $this->actionParams['email_template_id'],
       'contact_id' => $this->contributionData['contact_id']
     );
@@ -122,7 +123,7 @@ class CRM_Mafrules_SendThankYou {
     $activityParams = array(
       'activity_type_id' => $activityTypeId,
       'status_id' => $activityStatusId,
-      'activity_date_time' => date('Ymd'),
+      'activity_date_time' => date('YmdHis'),
       'subject' => $subject,
       'target_id' => $this->contributionData['contact_id']);
     civicrm_api3('Activity', 'Create', $activityParams);
@@ -148,7 +149,7 @@ class CRM_Mafrules_SendThankYou {
     $activityParams = array(
       'activity_type_id' => $activityTypeId,
       'status_id' => $activityStatusId,
-      'activity_date_time' => date('Ymd'),
+      'activity_date_time' => date('YmdHis'),
       'subject' => $subject,
       'target_id' => $this->contributionData['contact_id']);
     civicrm_api3('Activity', 'Create', $activityParams);
