@@ -161,7 +161,7 @@ function _mafrules_civirules_installed() {
  * @param string $customGroupName
  * @return bool|int
  */
-function _mafrule_create_civirulescheck($customGroupName) {
+function _mafrules_create_civirulescheck($customGroupName) {
   $customGroupName = 'maf_norge_civirules_check';
   $customFieldName = 'send_thank_you_processed';
   try {
