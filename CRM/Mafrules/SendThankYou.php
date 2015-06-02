@@ -257,7 +257,7 @@ class CRM_Mafrules_SendThankYou {
 
   /**
    * Method to check if contact can be contacted by pdf. This can only happen if the contact has an address with a postal code and
-   * do not Mail is not checked
+   * do not Mail is not checked and the no thank you letter custom field is not no
    *
    * @param int $contactId
    * @return boolean
@@ -273,16 +273,55 @@ class CRM_Mafrules_SendThankYou {
       if ($doNotMail == TRUE) {
         $pdfAllowed = FALSE;
       } else {
-        try {
-          $contactAddresses = civicrm_api3('Address', 'Get', array('contact_id' => $contactId));
-          foreach ($contactAddresses['values'] as $contactAddress) {
-            if (!empty($contactAddress['postal_code'])) {
-              $pdfAllowed = TRUE;
+        if ($this->checkContactThankYouLetter($contactId) == FALSE) {
+          $pdfAllowed = FALSE;
+        } else {
+          try {
+            $contactAddresses = civicrm_api3('Address', 'Get', array('contact_id' => $contactId));
+            foreach ($contactAddresses['values'] as $contactAddress) {
+              if (!empty($contactAddress['postal_code'])) {
+                $pdfAllowed = TRUE;
+              }
             }
+          } catch (CiviCRM_API3_Exception $ex) {
           }
-        } catch (CiviCRM_API3_Exception $ex) {}
+        }
       }
     }   catch (CiviCRM_API3_Exception $ex) {}
     return $pdfAllowed;
+  }
+
+  /**
+   * Method to determine if a thank you letter for contact is allowed (custom field)
+   *
+   * @param int $contactId
+   * @return bool
+   * @access protected
+   */
+  protected function checkContactThankYouLetter($contactId) {
+    $thankYouLetterAllowed = TRUE;
+    $customGroupParams = array(
+      'name' => 'diverse_kontaktinfo',
+      'extends' => 'Contact');
+    try {
+      $customGroup = civicrm_api3('CustomGroup', 'Getsingle', $customGroupParams);
+      $customFieldParams = array(
+        'custom_group_id' => $customGroup['id'],
+        'name' => 'takkebrev_post',
+        'return' => 'column_name'
+      );
+      try {
+        $columnName = civicrm_api3('CustomField', 'Getvalue', $customFieldParams);
+        $query = 'SELECT '.$columnName.' FROM '.$customGroup['table_name'].' WHERE entity_id = %1';
+        $params = array(1 => array($contactId, 'Integer'));
+        $dao = CRM_Core_DAO::executeQuery($query, $params);
+        if ($dao->fetch()) {
+          if ($dao->$columnName == 0) {
+            $thankYouLetterAllowed = FALSE;
+          }
+        }
+      } catch (CiviCRM_API3_Exception $ex) {}
+    } catch (CiviCRM_API3_Exception $ex) {}
+    return $thankYouLetterAllowed;
   }
 }
