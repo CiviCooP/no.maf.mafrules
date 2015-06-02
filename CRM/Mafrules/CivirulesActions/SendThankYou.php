@@ -67,7 +67,6 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
     if (isset($contribution['thankyou_date']) && !empty($contribution['thankyou_date'])) {
       $processContribution = FALSE;
     }
-    CRM_Core_Error::debug('contribution data', $contribution);
     if ($this->excludeEarmarking($contribution['id']) == TRUE) {
       $processContribution = FALSE;
     }
@@ -208,33 +207,25 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
     $customGroupParams = array(
       'name' => 'nets_transactions',
       'extends' => 'Contribution');
-    CRM_Core_Error::debug('actionParams', $actionParams);
 
     try {
       $customGroup = civicrm_api3('CustomGroup', 'Getsingle', $customGroupParams);
-      CRM_Core_Error::debug('customGroup', $customGroup);
       $customFieldParams = array(
         'custom_group_id' => $customGroup['id'],
         'name' => 'earmarking',
         'return' => 'column_name');
-      CRM_Core_Error::debug('field params', $customFieldParams);
       try {
         $columnName = civicrm_api3('CustomField', 'Getvalue', $customFieldParams);
         $query = 'SELECT '.$columnName.' FROM '.$customGroup['table_name'].' WHERE entity_id = %1';
         $params = array(1 => array($contributionId, 'Integer'));
-        CRM_Core_Error::debug('query', $query);
-        CRM_Core_Error::debug('params', $params);
         $dao = CRM_Core_DAO::executeQuery($query, $params);
         if ($dao->fetch()) {
-          CRM_Core_Error::debug('dao', $dao);
           if (in_array($dao->$columnName, $actionParams['earmarking_id'])) {
             $excludeForEarmarking = TRUE;
           }
         }
       } catch (CiviCRM_API3_Exception $ex) {}
     } catch (CiviCRM_API3_Exception $ex) {}
-    CRM_Core_Error::debug('excludeEarmarking', $excludeForEarmarking);
-    exit();
     return $excludeForEarmarking;
   }
 }
