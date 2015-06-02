@@ -136,6 +136,8 @@ class CRM_Mafrules_CivirulesActions_Form_SendThankYou extends CRM_Core_Form {
     $this->addRule('email_from_email', ts('Email is not valid.'), 'email');
 
     $this->add('text', 'email_from_name', ts('From name'), true);
+    $this->add('text', 'process_start_time', ts('Process from time'), true);
+    $this->add('text', 'process_end_time', ts('Process to time'), true);
 
     $this->add('select', 'email_template_id', ts('Message template'), $this->getMessageTemplates(), true);
     $this->add('select', 'sms_template_id', ts('Message template'), $this->getMessageTemplates(), true);
@@ -175,11 +177,47 @@ class CRM_Mafrules_CivirulesActions_Form_SendThankYou extends CRM_Core_Form {
     if (!empty($this->ruleAction->action_params)) {
       $data = unserialize($this->ruleCondition->action_params);
     }
-    if (!empty($data['to_email'])) {
-      $defaultValues['to_email'] = $data['to_email'];
+    if (!empty($data['pdf_to_email'])) {
+      $defaultValues['pdf_to_email'] = $data['pdf_to_email'];
     }
-    if (!empty($data['template_id'])) {
-      $defaultValues['template_id'] = $data['template_id'];
+    if (!empty($data['email_from_email'])) {
+      $defaultValues['email_from_email'] = $data['email_from_email'];
+    }
+    if (!empty($data['process_start_time'])) {
+      $defaultValues['process_start_time'] = $data['process_start_time'];
+    }
+    if (!empty($data['process_end_time'])) {
+      $defaultValues['process_end_time'] = $data['process_end_time'];
+    }
+    if (!empty($data['email_from_name'])) {
+      $defaultValues['email_from_name'] = $data['email_from_name'];
+    }
+    if (!empty($data['email_template_id'])) {
+      $defaultValues['email_template_id'] = $data['email_template_id'];
+    }
+    if (!empty($data['sms_template_id'])) {
+      $defaultValues['sms_template_id'] = $data['sms_template_id'];
+    }
+    if (!empty($data['sms_provider_id'])) {
+      $defaultValues['sms_provider_id'] = $data['sms_provider_id'];
+    }
+    if (!empty($data['pdf_template_id'])) {
+      $defaultValues['pdf_template_id'] = $data['pdf_template_id'];
+    }
+    if (!empty($data['first_activity_type_id'])) {
+      $defaultValues['first_activity_type_id'] = $data['first_activity_type_id'];
+    }
+    if (!empty($data['second_activity_type_id'])) {
+      $defaultValues['second_activity_type_id'] = $data['second_activity_type_id'];
+    }
+    if (!empty($data['first_activity_status_id'])) {
+      $defaultValues['first_activity_status_id'] = $data['first_activity_status_id'];
+    }
+    if (!empty($data['second_activity_status_id'])) {
+      $defaultValues['second_activity_status_id'] = $data['second_activity_status_id'];
+    }
+    if (!empty($data['earmarking_id'])) {
+      $defaultValues['earmarking_id'] = $data['earmarking_id'];
     }
     return $defaultValues;
   }
@@ -191,6 +229,8 @@ class CRM_Mafrules_CivirulesActions_Form_SendThankYou extends CRM_Core_Form {
    */
   public function postProcess() {
     $data['earmarking_id'] = $this->_submitValues['earmarking_id'];
+    $data['process_start_time'] = $this->_submitValues['process_start_time'];
+    $data['process_end_time'] = $this->_submitValues['process_end_time'];
     $data['first_activity_type_id'] = $this->_submitValues['first_activity_type_id'];
     $data['first_activity_status_id'] = $this->_submitValues['first_activity_status_id'];
     $data['second_activity_type_id'] = $this->_submitValues['second_activity_type_id'];

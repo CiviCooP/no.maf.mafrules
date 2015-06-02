@@ -176,10 +176,22 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
    * @access public
    */
   public function userFriendlyConditionParams() {
-    $friendlyParams = '';
+    $friendlyParams = array();
     $params = $this->getActionParameters();
 
-    return $friendlyParams;
+    if (!empty($params['earmarking_id'])) {
+      $friendlyParams[] = 'exclude earmarkings '.implode(',', $params['earmarking_id']);
+    }
+
+    $friendlyParams[] = 'run between '.$params['process_start_time'].' and '.$params['process_end_time'];
+    $friendlyParams[] = 'activity type/status for first '.$params['first_activity_type_id'].'/'.$params['first_activity_status_id']
+      .' and second '.$params['second_activity_type_id'].'/'.$params['second_activity_status_id'].' contribution';
+    $friendlyParams[] = 'email from name '.$params['email_from_name'].' and email address '
+      .$params['email_from_email'].' with template '.$params['email_template_id'];
+    $friendlyParams[] = 'sms from provider '.$params['sms_provider_id'].' with template '.$params['sms_template_id'];
+    $friendlyParams[] = 'pdf to email '.$params['pdf_to_email'].' with template '.$params['pdf_template_id'];
+
+    return implode('; ', $friendlyParams);
   }
 
   /**
@@ -195,24 +207,33 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
     $customGroupParams = array(
       'name' => 'nets_transactions',
       'extends' => 'Contribution');
+    CRM_Core_Error::debug('actionParams', $actionParams);
+
     try {
       $customGroup = civicrm_api3('CustomGroup', 'Getsingle', $customGroupParams);
+      CRM_Core_Error::debug('customGroup', $customGroup);
       $customFieldParams = array(
         'custom_group_id' => $customGroup['id'],
         'name' => 'earmarking',
         'return' => 'column_name');
+      CRM_Core_Error::debug('field params', $customFieldParams);
       try {
         $columnName = civicrm_api3('CustomField', 'Getvalue', $customFieldParams);
         $query = 'SELECT '.$columnName.' FROM '.$customGroup['table_name'].' WHERE entity_id = %1';
         $params = array(1 => array($contributionId, 'Integer'));
+        CRM_Core_Error::debug('query', $query);
+        CRM_Core_Error::debug('params', $params);
         $dao = CRM_Core_DAO::executeQuery($query, $params);
         if ($dao->fetch()) {
+          CRM_Core_Error::debug('dao', $dao);
           if (in_array($dao->$columnName, $actionParams['earmarking_id'])) {
             $excludeForEarmarking = TRUE;
           }
         }
       } catch (CiviCRM_API3_Exception $ex) {}
     } catch (CiviCRM_API3_Exception $ex) {}
+    CRM_Core_Error::debug('excludeEarmarking', $excludeForEarmarking);
+    exit();
     return $excludeForEarmarking;
   }
 }
