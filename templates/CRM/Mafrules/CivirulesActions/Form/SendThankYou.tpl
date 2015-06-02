@@ -47,6 +47,16 @@
       <div class="content">{$form.email_template_id.html}</div>
       <div class="clear"></div>
     </div>
+    <div class="crm-section">
+      <div class="label">{$form.email_start_time.label}</div>
+      <div class="content">{$form.email_start_time.html}</div>
+      <div class="clear"></div>
+    </div>
+    <div class="crm-section">
+      <div class="label">{$form.email_end_time.label}</div>
+      <div class="content">{$form.email_end_time.html}</div>
+      <div class="clear"></div>
+    </div>
   </fieldset>
   <fieldset><legend>{ts}SMS configuration{/ts}</legend>
     <div class="crm-section">
@@ -57,6 +67,16 @@
     <div class="crm-section">
       <div class="label">{$form.sms_template_id.label}</div>
       <div class="content">{$form.sms_template_id.html}</div>
+      <div class="clear"></div>
+    </div>
+    <div class="crm-section">
+      <div class="label">{$form.sms_start_time.label}</div>
+      <div class="content">{$form.sms_start_time.html}</div>
+      <div class="clear"></div>
+    </div>
+    <div class="crm-section">
+      <div class="label">{$form.sms_end_time.label}</div>
+      <div class="content">{$form.sms_end_time.html}</div>
       <div class="clear"></div>
     </div>
   </fieldset>

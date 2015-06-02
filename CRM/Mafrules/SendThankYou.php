@@ -275,7 +275,7 @@ class CRM_Mafrules_SendThankYou {
       } else {
         try {
           $contactAddresses = civicrm_api3('Address', 'Get', array('contact_id' => $contactId));
-          foreach ($contactAddresses as $contactAddress) {
+          foreach ($contactAddresses['values'] as $contactAddress) {
             if (!empty($contactAddress['postal_code'])) {
               $pdfAllowed = TRUE;
             }
