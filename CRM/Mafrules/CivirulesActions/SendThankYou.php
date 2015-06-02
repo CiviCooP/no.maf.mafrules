@@ -67,6 +67,7 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
     if (isset($contribution['thankyou_date']) && !empty($contribution['thankyou_date'])) {
       $processContribution = FALSE;
     }
+    CRM_Core_Error::debug('contribution data', $contribution);
     if ($this->excludeEarmarking($contribution['id']) == TRUE) {
       $processContribution = FALSE;
     }
