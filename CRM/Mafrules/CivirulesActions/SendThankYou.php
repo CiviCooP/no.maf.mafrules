@@ -61,13 +61,14 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
     if ($this->contributionThankYou($contribution['id']) == FALSE) {
       $processContribution = FALSE;
     }
-    if (isset($contribution['contribution_recur_id']) && !empty($contribution['contribution_recur_id'])) {
+    if (isset($contribution['contribution_recur_id']) && !empty($contribution['contribution_recur_id'])
+      && $processContribution == TRUE) {
       $processContribution = FALSE;
     }
-    if (isset($contribution['thankyou_date']) && !empty($contribution['thankyou_date'])) {
+    if (isset($contribution['thankyou_date']) && !empty($contribution['thankyou_date']) && $processContribution == TRUE) {
       $processContribution = FALSE;
     }
-    if ($this->excludeEarmarking($contribution['id']) == TRUE) {
+    if ($this->excludeEarmarking($contribution['id']) == TRUE && $processContribution == TRUE) {
       $processContribution = FALSE;
     }
 
@@ -221,12 +222,22 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
         $params = array(1 => array($contributionId, 'Integer'));
         $dao = CRM_Core_DAO::executeQuery($query, $params);
         if ($dao->fetch()) {
-          if (in_array($dao->$columnName, $actionParams['earmarking_id'])) {
-            $excludeForEarmarking = TRUE;
+          if (is_array($actionParams['earmarking_id'])) {
+            if (in_array($dao->$columnName, $actionParams['earmarking_id'])) {
+              $excludeForEarmarking = TRUE;
+            }
+          } else {
+            if ($dao->$columnName == $actionParams['earmarking_id']) {
+              $excludeForEarmarking = TRUE;
+            }
           }
         }
       } catch (CiviCRM_API3_Exception $ex) {}
     } catch (CiviCRM_API3_Exception $ex) {}
+
+    $testMessage = 'exclude is dan : '.$excludeForEarmarking;
+    CRM_Core_DAO::executeQuery('INSERT INTO ehtest SET tekst = %1', array(1=>array($testMessage, 'String')));
+
     return $excludeForEarmarking;
   }
 
