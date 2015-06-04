@@ -43,6 +43,7 @@
  */
 
 class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
+  protected $earMarkingsList = array();
 
   /**
    * Method processAction to execute the action
@@ -170,6 +171,21 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
   }
 
   /**
+   * Function to get the label of the earmarking
+   *
+   * @param int $earMarkingId
+   * @return string
+   * @access protected
+   */
+  protected function getEarmarkingLabel($earMarkingId) {
+    if (isset($this->earMarkingsList[$earMarkingId])) {
+      return $this->earMarkingsList[$earMarkingId];
+    } else {
+      return '';
+    }
+  }
+
+  /**
    * Returns a user friendly text explaining the condition params
    * e.g. 'Older than 65'
    *
@@ -178,22 +194,59 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
    */
   public function userFriendlyConditionParams() {
     $friendlyParams = array();
+    $this->getEarmarkingsList();
     $params = $this->getActionParameters();
     if (!empty($params)) {
       if (!empty($params['earmarking_id'])) {
-        $formattedEarmarking = array();
-        $friendlyParams[] = 'exclude earmarkings ' . implode(',', $params['earmarking_id']);
+        $formattedEarmarkings = array();
+        foreach ($params['earmarking_id'] as $earMarking) {
+          $formattedEarmarkings[] = $this->getEarmarkingLabel($earMarking);
+        }
+        $friendlyParams[] = 'Exclude earmarkings: ' . implode(', ', $formattedEarmarkings);
       }
 
-      $friendlyParams[] = 'run between ' . $params['process_start_time'] . ' and ' . $params['process_end_time'];
-      $friendlyParams[] = 'activity type/status for first ' . $params['first_activity_type_id'] . '/' . $params['first_activity_status_id']
-        . ' and second ' . $params['second_activity_type_id'] . '/' . $params['second_activity_status_id'] . ' contribution';
-      $friendlyParams[] = 'email from name ' . $params['email_from_name'] . ' and email address '
-        . $params['email_from_email'] . ' with template ' . $params['email_template_id'];
-      $friendlyParams[] = 'sms from provider ' . $params['sms_provider_id'] . ' with template ' . $params['sms_template_id'];
-      $friendlyParams[] = 'pdf to email ' . $params['pdf_to_email'] . ' with template ' . $params['pdf_template_id'];
+      $friendlyParams[] = 'Run between ' . $params['process_start_time'] . ' and ' . $params['process_end_time'];
+      $firstDetails = CRM_Core_BAO_OptionValue::getActivityTypeDetails($params['first_activity_type_id']);
+      $secondDetails = CRM_Core_BAO_OptionValue::getActivityTypeDetails($params['first_activity_type_id']);
+      if (!empty($firstDetails)) {
+        $friendlyParams[] = 'Activity type for first contribution: ' . $firstDetails[0].' with status: '.
+          $this->getActivityStatusName($params['first_activity_status_id']);
+      }
+      if (!empty($secondDetails)) {
+        $friendlyParams[] = 'Activity type for second contribution: ' . $secondDetails[0].' with status: '.
+          $this->getActivityStatusName($params['second_activity_status_id']);
+      }
+      $friendlyParams[] = 'Email from name: ' . $params['email_from_name'] . ' and email address: '
+        . $params['email_from_email'] . ' and template: ' . $this->getTemplateName($params['email_template_id']);
+      $friendlyParams[] = 'SMS from provider: ' .$this->getProviderName($params['sms_provider_id']).
+        ' with template: ' .$this->getTemplateName($params['sms_template_id']);
+      $friendlyParams[] = 'PDF to email: ' . $params['pdf_to_email'] . ' with template: ' .
+        $this->getTemplateName($params['pdf_template_id']);
     }
     return implode('<br/>', $friendlyParams);
+  }
+
+  /**
+   * Method to get the activity status label
+   *
+   * @param $activityStatusId
+   * @return array|string
+   * @access public
+   */
+  public function getActivityStatusName($activityStatusId) {
+    $optionGroupParams = array(
+      'name' => 'activity_status',
+      'return' => 'id');
+    try {
+      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', $optionGroupParams);
+      $optionValueParams = array(
+        'option_group_id' => $optionGroupId,
+        'value' => $activityStatusId,
+        'return' => 'label');
+      return civicrm_api3('OptionValue', 'Getvalue', $optionValueParams);
+    } catch (CiviCRM_API3_Exception $ex) {
+      return '';
+    }
   }
 
   /**
@@ -272,4 +325,64 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
     return false;
   }
 
+  /**
+   * Method to get earmarkings in a property
+   *
+   * @access protected
+   */
+  protected function getEarmarkingsList() {
+    $this->earMarkingsList = array();
+    $optionGroupParams = array(
+      'name' => 'earmarking',
+      'return' => 'id');
+    try {
+      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', $optionGroupParams);
+      $optionValueParams = array(
+        'option_group_id' => $optionGroupId,
+        'is_active' => 1);
+      $optionValues = civicrm_api3('OptionValue', 'Get', $optionValueParams);
+      foreach ($optionValues['values'] as $optionValue) {
+        $this->earMarkingsList[$optionValue['value']] = $optionValue['label'];
+      }
+    } catch (CiviCRM_API3_Exception $ex) {}
+  }
+
+  /**
+   * Method to get the template name
+   *
+   * @param int $templateId
+   * @return string
+   * @access public
+   */
+  public function getTemplateName($templateId) {
+    $version = CRM_Core_BAO_Domain::version();
+    if($version >= 4.4) {
+      $messageTemplates = new CRM_Core_DAO_MessageTemplate();
+    } else {
+      $messageTemplates = new CRM_Core_DAO_MessageTemplates();
+    }
+    $messageTemplates->id = $templateId;
+    $messageTemplates->is_active = true;
+    if ($messageTemplates->find(TRUE)) {
+      return $messageTemplates->msg_title;
+    } else {
+      return '';
+    }
+  }
+
+  /**
+   * Method to get the provider name
+   *
+   * @param int $providerId
+   * @return string
+   * @access public
+   */
+  public function getProviderName($providerId) {
+    $providerInfo = CRM_SMS_BAO_Provider::getProviderInfo($providerId);
+    if (isset($providerInfo['title'])) {
+      return $providerInfo['title'];
+    } else {
+      return '';
+    }
+  }
 }
