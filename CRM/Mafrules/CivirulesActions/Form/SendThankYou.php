@@ -138,6 +138,7 @@ class CRM_Mafrules_CivirulesActions_Form_SendThankYou extends CRM_Core_Form {
     $this->add('text', 'email_from_name', ts('From name'), true);
     $this->add('text', 'process_start_time', ts('Process from time'), true);
     $this->add('text', 'process_end_time', ts('Process to time'), true);
+    $this->addFormRule(array('CRM_Mafrules_CivirulesActions_Form_SendThankYou', 'validateTimes'));
 
     $this->add('select', 'email_template_id', ts('Message template'), $this->getMessageTemplates(), true);
     $this->add('select', 'sms_template_id', ts('Message template'), $this->getMessageTemplates(), true);
@@ -228,7 +229,11 @@ class CRM_Mafrules_CivirulesActions_Form_SendThankYou extends CRM_Core_Form {
    * @access public
    */
   public function postProcess() {
-    $data['earmarking_id'] = $this->_submitValues['earmarking_id'];
+    if (isset($this->_submitValues['earmarking_id'])) {
+      $data['earmarking_id'] = $this->_submitValues['earmarking_id'];
+    } else {
+      $data['earmarking_id'] = null;
+    }
     $data['process_start_time'] = $this->_submitValues['process_start_time'];
     $data['process_end_time'] = $this->_submitValues['process_end_time'];
     $data['first_activity_type_id'] = $this->_submitValues['first_activity_type_id'];
@@ -266,4 +271,65 @@ class CRM_Mafrules_CivirulesActions_Form_SendThankYou extends CRM_Core_Form {
     $this->assign('ruleActionHeader', 'Edit action '.$this->action->label.' of CiviRule '.CRM_Civirules_BAO_Rule::getRuleLabelWithId($this->ruleAction->rule_id));
     CRM_Utils_System::setTitle($title);
   }
+
+  /**
+   * Method to validate time is in the right format
+   *
+   * @param array $fields
+   * @return array|bool
+   * @access public
+   * @static
+   */
+  public static function validateTimes($fields) {
+    $errors = array();
+    if (!empty($fields['process_start_time'])) {
+      if (self::timeValidFormat($fields['process_start_time']) == FALSE) {
+        $errors['process_start_time'] = 'Time has to be specified in format hh:mm using 24 hours, for example 10:30 or 17:00';
+      }
+    }
+    if (!empty($fields['process_end_time'])) {
+      if (self::timeValidFormat($fields['process_end_time']) == FALSE) {
+        $errors['process_end_time'] = 'Time has to be specified in format hh:mm using 24 hours, for example 10:30 or 17:00';
+      }
+      if (!empty($fields['process_start_time'])) {
+        if (self::timeSpanValid($fields['process_start_time'], $fields['process_end_time']) == FALSE) {
+          $errors['process_end_time'] = 'End time has to be later than start time';
+        }
+      }
+    }
+    if (!empty($errors)) {
+      return $errors;
+    } else {
+      return TRUE;
+    }
+  }
+
+  /**
+   * Method to validate time format
+   *
+   * @param string $processTime
+   * @return boolean $validTime
+   * @access public
+   * @static
+   */
+  public static function timeValidFormat($processTime) {
+    $validTime = FALSE;
+    $timeParts = explode(':', $processTime);
+    if (is_array($timeParts) && isset($timeParts[1]) && !isset($timeParts[2])) {
+      if (is_numeric($timeParts[0]) && is_numeric($timeParts[1]) && strlen($timeParts[0]) == 2 && strlen($timeParts[1]) == 2) {
+        $validTime = TRUE;
+      }
+    }
+    return $validTime;
+  }
+  public static function timeSpanValid($startTime, $endTime) {
+    $start = date('Hi', strtotime($startTime));
+    $end = date('Hi', strtotime($endTime));
+    if ($end < $start) {
+      return FALSE;
+    } else {
+      return TRUE;
+    }
+  }
+
 }

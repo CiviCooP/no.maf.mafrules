@@ -178,19 +178,20 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
   public function userFriendlyConditionParams() {
     $friendlyParams = array();
     $params = $this->getActionParameters();
+    if (!empty($params)) {
+      if (!empty($params['earmarking_id'])) {
+        $formattedEarmarking = array();
+        $friendlyParams[] = 'exclude earmarkings ' . implode(',', $params['earmarking_id']);
+      }
 
-    if (!empty($params['earmarking_id'])) {
-      $friendlyParams[] = 'exclude earmarkings '.implode(',', $params['earmarking_id']);
+      $friendlyParams[] = 'run between ' . $params['process_start_time'] . ' and ' . $params['process_end_time'];
+      $friendlyParams[] = 'activity type/status for first ' . $params['first_activity_type_id'] . '/' . $params['first_activity_status_id']
+        . ' and second ' . $params['second_activity_type_id'] . '/' . $params['second_activity_status_id'] . ' contribution';
+      $friendlyParams[] = 'email from name ' . $params['email_from_name'] . ' and email address '
+        . $params['email_from_email'] . ' with template ' . $params['email_template_id'];
+      $friendlyParams[] = 'sms from provider ' . $params['sms_provider_id'] . ' with template ' . $params['sms_template_id'];
+      $friendlyParams[] = 'pdf to email ' . $params['pdf_to_email'] . ' with template ' . $params['pdf_template_id'];
     }
-
-    $friendlyParams[] = 'run between '.$params['process_start_time'].' and '.$params['process_end_time'];
-    $friendlyParams[] = 'activity type/status for first '.$params['first_activity_type_id'].'/'.$params['first_activity_status_id']
-      .' and second '.$params['second_activity_type_id'].'/'.$params['second_activity_status_id'].' contribution';
-    $friendlyParams[] = 'email from name '.$params['email_from_name'].' and email address '
-      .$params['email_from_email'].' with template '.$params['email_template_id'];
-    $friendlyParams[] = 'sms from provider '.$params['sms_provider_id'].' with template '.$params['sms_template_id'];
-    $friendlyParams[] = 'pdf to email '.$params['pdf_to_email'].' with template '.$params['pdf_template_id'];
-
     return implode('; ', $friendlyParams);
   }
 
@@ -228,4 +229,40 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
     } catch (CiviCRM_API3_Exception $ex) {}
     return $excludeForEarmarking;
   }
+
+  /**
+   * Overridden parent method to calculate the time when the action should be processed
+   * Used here to make sure no actions are executed before the action parameters start time
+   * and not after the action parameters end time
+   *
+   * @param DateTime $date
+   * @return bool
+   * @access public
+   */
+  public function delayTo(DateTime $date) {
+    $startTime = null;
+    $endTime = null;
+    $actionParams = $this->getActionParameters();
+    if (isset($actionParams['process_start_time']) && !empty($actionParams['process_start_time'])) {
+      $paramStart = date('Ymd').date('Hi', strtotime($actionParams['process_start_time'])).'00';
+      $start = new DateTime($paramStart);
+      $startTime = date_format($start, 'YmdHis');
+    }
+    if (isset($actionParams['process_end_time']) && !empty($actionParams['process_end_time'])) {
+      $paramEnd = date('Ymd').date('Hi', strtotime($actionParams['process_end_time'])).'00';
+      $end = new DateTime($paramEnd);
+      $endTime = date_format($end, 'YmdHis');
+    }
+    $nowTime = date_format($date, 'YmdHis');
+    if (!empty($startTime) || !empty($endTime)) {
+      if ($nowTime < $startTime) {
+        return $start;
+      }
+      if ($nowTime > $endTime) {
+        return $start->modify('+1 day');
+      }
+    }
+    return false;
+  }
+
 }
