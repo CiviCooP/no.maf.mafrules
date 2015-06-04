@@ -120,7 +120,7 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
   protected function contributionThankYou($contributionId) {
     $sendThankYou = TRUE;
     $customGroupParams = array(
-      'name' => 'maf_contribution_thank_you',
+      'name' => 'maf_norge_contribution_thank_you',
       'extends' => 'Contribution');
     try {
       $customGroup = civicrm_api3('CustomGroup', 'Getsingle', $customGroupParams);
@@ -234,10 +234,6 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
         }
       } catch (CiviCRM_API3_Exception $ex) {}
     } catch (CiviCRM_API3_Exception $ex) {}
-
-    $testMessage = 'exclude is dan : '.$excludeForEarmarking;
-    CRM_Core_DAO::executeQuery('INSERT INTO ehtest SET tekst = %1', array(1=>array($testMessage, 'String')));
-
     return $excludeForEarmarking;
   }
 

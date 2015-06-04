@@ -129,13 +129,13 @@ class CRM_Mafrules_CivirulesActions_Form_SendThankYou extends CRM_Core_Form {
 
     $this->add('hidden', 'rule_action_id');
 
-    $this->add('text', 'pdf_to_email', ts('To e-mail address'), true);
+    $this->add('text', 'pdf_to_email', ts('To e-mail address'), array(), true);
     $this->addRule('pdf_to_email', ts('Email is not valid.'), 'email');
 
-    $this->add('text', 'email_from_email', ts('From e-mail address'), true);
+    $this->add('text', 'email_from_email', ts('From e-mail address'), array(), true);
     $this->addRule('email_from_email', ts('Email is not valid.'), 'email');
 
-    $this->add('text', 'email_from_name', ts('From name'), true);
+    $this->add('text', 'email_from_name', ts('From name'), array(), true);
     $this->add('text', 'process_start_time', ts('Process from time'), true);
     $this->add('text', 'process_end_time', ts('Process to time'), true);
     $this->addFormRule(array('CRM_Mafrules_CivirulesActions_Form_SendThankYou', 'validateTimes'));
