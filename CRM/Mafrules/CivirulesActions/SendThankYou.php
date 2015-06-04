@@ -193,7 +193,7 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
       $friendlyParams[] = 'sms from provider ' . $params['sms_provider_id'] . ' with template ' . $params['sms_template_id'];
       $friendlyParams[] = 'pdf to email ' . $params['pdf_to_email'] . ' with template ' . $params['pdf_template_id'];
     }
-    return implode('; ', $friendlyParams);
+    return implode('<br/>', $friendlyParams);
   }
 
   /**
