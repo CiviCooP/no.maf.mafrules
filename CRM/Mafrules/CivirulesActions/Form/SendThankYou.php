@@ -153,7 +153,7 @@ class CRM_Mafrules_CivirulesActions_Form_SendThankYou extends CRM_Core_Form {
     $earmarkingSelect = $this->addElement('advmultiselect', 'earmarking_id',
       ts('Available Earmarking') . ' ', $this->getEarmarking(),
       array('size' => 5,
-        'style' => 'width:150px',
+        'style' => 'width:250px',
         'class' => 'advmultiselect')
     );
 
