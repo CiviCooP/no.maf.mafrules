@@ -142,7 +142,7 @@ class CRM_Mafrules_CivirulesActions_Form_SendThankYou extends CRM_Core_Form {
 
     $this->add('select', 'email_template_id', ts('Message template'), $this->getMessageTemplates(), true);
     $this->add('select', 'sms_template_id', ts('Message template'), $this->getMessageTemplates(), true);
-    $this->add('select', 'sms_provider_id', ts('SMS provider'), $this->getSmsProviders(), true);
+    $this->add('select', 'sms_provider_id', ts('SMS provider'), $this->getSmsProviders());
     $this->add('select', 'pdf_template_id', ts('Message template'), $this->getMessageTemplates(), true);
     $this->add('select', 'first_activity_type_id', ts('Activity Type'), $this->getActivityTypes(), true);
     $this->add('select', 'second_activity_type_id', ts('Activity Type'), $this->getActivityTypes(), true);
@@ -176,7 +176,7 @@ class CRM_Mafrules_CivirulesActions_Form_SendThankYou extends CRM_Core_Form {
     $defaultValues = array();
     $defaultValues['rule_action_id'] = $this->ruleActionId;
     if (!empty($this->ruleAction->action_params)) {
-      $data = unserialize($this->ruleCondition->action_params);
+      $data = unserialize($this->ruleAction->action_params);
     }
     if (!empty($data['pdf_to_email'])) {
       $defaultValues['pdf_to_email'] = $data['pdf_to_email'];
