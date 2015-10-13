@@ -48,12 +48,12 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
   /**
    * Method processAction to execute the action
    *
-   * @param CRM_Civirules_EventData_EventData $eventData
+   * @param CRM_Civirules_TriggerData_TriggerData $triggerData
    * @access public
    *
    */
-  public function processAction(CRM_Civirules_EventData_EventData $eventData) {
-    $contribution = $eventData->getEntityData('Contribution');
+  public function processAction(CRM_Civirules_TriggerData_TriggerData $triggerData) {
+    $contribution = $triggerData->getEntityData('Contribution');
     $this->setSendThankYouProcessed($contribution['contribution_id']);
     $processContribution = TRUE;
     /*
