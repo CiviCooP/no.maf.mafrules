@@ -6,4 +6,16 @@
     <title>SendThankYou</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/civirule/form/action/createmembership</path>
+    <page_callback>CRM_Mafrules_CivirulesActions_Form_CreateMembership</page_callback>
+    <title>Create membership</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/civirule/form/action/updatemembership</path>
+    <page_callback>CRM_Mafrules_CivirulesActions_Form_UpdateMembership</page_callback>
+    <title>Update membership</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>
