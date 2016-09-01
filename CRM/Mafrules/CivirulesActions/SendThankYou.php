@@ -296,10 +296,11 @@ class CRM_Mafrules_CivirulesActions_SendThankYou extends CRM_Civirules_Action {
    * and not after the action parameters end time
    *
    * @param DateTime $date
+   * @aram CRM_Civirules_TriggerData_TriggerData $triggerData
    * @return bool
    * @access public
    */
-  public function delayTo(DateTime $date) {
+  public function delayTo(DateTime $date, CRM_Civirules_TriggerData_TriggerData $triggerData) {
     $startTime = null;
     $endTime = null;
     $actionParams = $this->getActionParameters();
